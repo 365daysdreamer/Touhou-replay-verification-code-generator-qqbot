@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.8.20"
     application
     kotlin("plugin.serialization") version "1.8.20"
-    id("net.mamoe.mirai-console") version "2.14.0"
+    id("net.mamoe.mirai-console") version "2.15.0-M1"
 }
 
 group = "org.stg.verification.bot"
