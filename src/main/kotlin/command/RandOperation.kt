@@ -13,7 +13,7 @@ import kotlin.random.Random
 object RandOperation : CommandHandler {
     override val name = "随机操作"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name"
+    override fun showTips(groupCode: Long, senderId: Long) = name
 
     override fun checkAuth(groupCode: Long, senderId: Long) = true
 

@@ -10,7 +10,7 @@ import org.stg.verification.bot.storage.RandOperationHistory
 object GetAllRecords : CommandHandler {
     override val name = "查询全部记录"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name 对方QQ号"
+    override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
 
     override fun checkAuth(groupCode: Long, senderId: Long) = PermData.isAdmin(senderId)
 
@@ -23,9 +23,9 @@ object GetAllRecords : CommandHandler {
             } else {
                 PlainText(result.joinToString(separator = "\n", prefix = "随机操作记录：\n"))
             }
-
         } else {
-            val result = target.mapNotNull { qqNumber ->
+            val result = target.mapNotNull {
+                qqNumber ->
                 RandOperationHistory.getAllRecords(qqNumber)?.let { listOf("$qqNumber:", *it.toTypedArray()) }
             }.flatten()
             if (result.isEmpty()) {

@@ -17,7 +17,7 @@ internal object PluginMain : KotlinPlugin(
     JvmPluginDescription(
         id = "org.stg.verification.bot",
         name = "Touhou Replay Verification Code Generator Bot",
-        version = "1.0.0"
+        version = "1.1.0"
     )
 ) {
     override fun onEnable() {

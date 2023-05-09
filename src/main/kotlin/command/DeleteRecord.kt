@@ -10,7 +10,7 @@ import org.stg.verification.bot.storage.RandOperationHistory
 object DeleteRecord : CommandHandler {
     override val name = "删除记录"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name 对方QQ号"
+    override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
 
     override fun checkAuth(groupCode: Long, senderId: Long) = true
 
@@ -24,8 +24,12 @@ object DeleteRecord : CommandHandler {
             }
         } else {
             val (succeed, failed) = target
-                .filter { it == event.sender.id || PermData.isAdmin(event.sender.id) }
-                .partition { RandOperationHistory.deleteRecord(it) }
+                .partition {
+                    if (it == event.sender.id || PermData.isAdmin(event.sender.id))
+                        RandOperationHistory.deleteRecord(it)
+                    else
+                        false
+                }
             val result =
                 if (succeed.isNotEmpty()) {
                     succeed.joinToString(separator = "\n", prefix = "已清除记录：\n")

@@ -9,7 +9,7 @@ import org.stg.verification.bot.storage.RandOperationHistory
 object GetRecord : CommandHandler {
     override val name = "查询记录"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name 对方QQ号"
+    override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
 
     override fun checkAuth(groupCode: Long, senderId: Long) = true
 
@@ -19,18 +19,17 @@ object GetRecord : CommandHandler {
             val result = RandOperationHistory.getRecord(event.sender.id)
             if (result.isNullOrEmpty()) {
                 PlainText("未查询到记录")
-            }
-            else {
+            } else {
                 PlainText(result.joinToString(separator = "\n", prefix = "随机操作记录：\n"))
             }
         } else {
-            val result = target.mapNotNull { qqNumber ->
+            val result = target.mapNotNull {
+                qqNumber ->
                 RandOperationHistory.getRecord(qqNumber)?.let { listOf("$qqNumber:", *it.toTypedArray()) }
             }.flatten()
             if (result.isEmpty()) {
                 PlainText("未查询到记录")
-            }
-            else {
+            } else {
                 PlainText(result.joinToString(separator = "\n", prefix = "随机操作记录：\n"))
             }
         }

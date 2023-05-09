@@ -9,7 +9,7 @@ import org.stg.verification.bot.storage.PermData
 object ListAllAdmin : CommandHandler {
     override val name = "查看管理员"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name"
+    override fun showTips(groupCode: Long, senderId: Long) = name
 
     override fun checkAuth(groupCode: Long, senderId: Long) = true
 

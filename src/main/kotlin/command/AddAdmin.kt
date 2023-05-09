@@ -10,7 +10,7 @@ import org.stg.verification.bot.storage.TRVGConfig
 object AddAdmin : CommandHandler {
     override val name = "增加管理员"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name 对方QQ号"
+    override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
 
     override fun checkAuth(groupCode: Long, senderId: Long) = TRVGConfig.isSuperAdmin(senderId)
 
