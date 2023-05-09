@@ -5,11 +5,13 @@ import net.mamoe.mirai.console.data.*
 object RandOperationHistory : AutoSavePluginData("RandOperationHistory") {
     @ValueName("history")
     @ValueDescription("随机操作历史记录")
-    var history: Map<Long, List<String>> by value(hashMapOf())
+    var history: Map<Long, MutableList<String>> by value(hashMapOf())
 
     fun addRecord(qq: Long, record: String) {
         synchronized(RandOperationHistory) {
-            history += qq to mutableListOf(record)
+            val recordList = history[qq] ?: mutableListOf()
+            recordList.add(record)
+            history += qq to recordList
         }
     }
 
@@ -25,14 +27,16 @@ object RandOperationHistory : AutoSavePluginData("RandOperationHistory") {
     fun getRecord(qq: Long): List<String>? {
         synchronized(RandOperationHistory) {
             val result = history[qq] ?: return null
-            if (result.size <= TRVGConfig.randOperation.limit) return result
-            return result.subList(result.size - TRVGConfig.randOperation.limit, result.size)
+            return listOf(result.last())
         }
     }
 
     fun getAllRecords(qq: Long): List<String>? {
         synchronized(RandOperationHistory) {
-            return history[qq]
+            val result = history[qq] ?: return null
+            if (result.size <= TRVGConfig.randOperation.limit) return result
+            return result.subList(result.size - TRVGConfig.randOperation.limit, result.size)
         }
     }
+
 }
