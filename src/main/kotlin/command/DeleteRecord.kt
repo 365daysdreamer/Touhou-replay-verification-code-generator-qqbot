@@ -18,8 +18,8 @@ object DeleteRecord : CommandHandler {
         val qqNumbers = content.split(" ").mapNotNull {
             runCatching { it.toLong() }.getOrNull()
         }
-        if (qqNumbers.isEmpty()) {
-            return if (RandOperationHistory.deleteRecord(msg.sender.id)) {
+        return if (qqNumbers.isEmpty()) {
+            if (RandOperationHistory.deleteRecord(msg.sender.id)) {
                 PlainText("QQ${msg.sender.id}的记录删除成功！")
             } else {
                 PlainText("QQ${msg.sender.id}没有随机操作记录！")
@@ -31,7 +31,7 @@ object DeleteRecord : CommandHandler {
             val result =
                 if (succeed.isNotEmpty()) succeed.joinToString(separator = "\n", prefix = "已清除记录：\n")
                 else failed.joinToString(separator = "\n", postfix = "该记录为空或你不是管理员")
-            return PlainText(result)
+            PlainText(result)
         }
     }
 }
