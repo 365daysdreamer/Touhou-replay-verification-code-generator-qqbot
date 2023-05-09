@@ -1,9 +1,7 @@
 package org.stg.verification.bot
 
 import net.mamoe.mirai.event.events.GroupMessageEvent
-import net.mamoe.mirai.message.data.At
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.*
 import org.stg.verification.bot.command.*
 import org.stg.verification.bot.storage.TRVGConfig
 
@@ -27,11 +25,32 @@ interface CommandHandler {
     fun checkAuth(groupCode: Long, senderId: Long): Boolean
 
     /**
+     * 提取指令中的QQ号
+     * @param msg 触发指令的消息链
+     * @return 如果指令中包含QQ号@target，就返回这个QQ号，否则返回null
+     */
+    fun extractQQ(msg: MessageChain): List<Long> {
+        val target = mutableListOf<Long>()
+        for (ele in msg) {
+            if (ele is At && ele.target != msg.bot.id) {
+                target.add(ele.target)
+            } else if (ele is PlainText) {
+                val qq = ele.content.split(" ").map {
+                    runCatching { it.toLong() }.getOrNull()
+                }
+                target.addAll(qq.filterNotNull())
+            }
+        }
+        return target.distinct()
+    }
+
+    /**
      * 执行指令
+     * @param event 触发指令的事件
      * @param content 除开指令名（第一个空格前的部分）以外剩下的所有内容
      * @return 要发送的群聊消息，为空就是不发送消息
      */
-    suspend fun execute(msg: GroupMessageEvent, content: String): Message?
+    suspend fun execute(event: GroupMessageEvent, content: String): Message
 
     companion object {
         val handlers = arrayOf(
@@ -47,8 +66,8 @@ interface CommandHandler {
             if (message.size <= 1)
                 return
             val isAt = message.getOrNull(1)?.let { it is At && it.target == e.bot.id } ?: false
-            if (!isAt && message.size > 2 || message.size > 3)
-                return
+            // if (!isAt && message.size > 2 || message.size > 3)
+            //     return
             val msg =
                 if (isAt) (message.getOrNull(2) as? PlainText)?.content?.trim()
                 else (message.getOrNull(1) as? PlainText)?.content?.trim()
@@ -60,7 +79,7 @@ interface CommandHandler {
             val content = msgSlices.getOrElse(1) { "" }
             handlers.forEach {
                 if (it.name == cmd && it.checkAuth(e.group.id, e.sender.id)) {
-                    val groupMsg = it.execute(e, content) ?: return@forEach
+                    val groupMsg = it.execute(e, content)
                     e.group.sendMessage(groupMsg)
                 }
             }
