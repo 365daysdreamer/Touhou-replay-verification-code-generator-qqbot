@@ -13,11 +13,11 @@ import kotlin.random.Random
 object RandOperation : CommandHandler {
     override val name = "随机操作"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "随机操作"
+    override fun showTips(groupCode: Long, senderId: Long) = "$name"
 
     override fun checkAuth(groupCode: Long, senderId: Long) = true
 
-    override suspend fun execute(msg: GroupMessageEvent, content: String): Message {
+    override suspend fun execute(event: GroupMessageEvent, content: String): Message {
         val record = StringBuilder()
         for (i in 1..TRVGConfig.randOperation.number)
             record.append(randOperations[Random.nextInt(randOperations.size)])
@@ -26,7 +26,7 @@ object RandOperation : CommandHandler {
         val time = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Locale.CHINA)
         time.timeZone = TimeZone.getTimeZone("GMT+8:00")
         record.append("\n${time.format(now.time)}")
-        RandOperationHistory.addRecord(msg.sender.id, record.toString())
+        RandOperationHistory.addRecord(event.sender.id, record.toString())
         return PlainText(text)
     }
 
