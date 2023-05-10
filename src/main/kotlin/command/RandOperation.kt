@@ -15,6 +15,12 @@ object RandOperation : CommandHandler {
 
     override fun showTips(groupCode: Long, senderId: Long) = name
 
+    override fun showInstruction(groupCode: Long, senderId: Long) = """
+        $name
+        获得一串由[↑, ↓, ←, →]组成的随机方向，玩家需要在直播+实录的同时，在关底boss对话过程中通过方向键输入进游戏里
+        在配置文件里可以设置验证码的长度，默认为10位验证码
+    """.trimIndent()
+
     override fun checkAuth(groupCode: Long, senderId: Long) = true
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {

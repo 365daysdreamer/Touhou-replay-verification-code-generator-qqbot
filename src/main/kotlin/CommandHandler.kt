@@ -15,9 +15,14 @@ interface CommandHandler {
     val name: String
 
     /**
-     * 在【指令说明】中应该如何显示这个命令。null 表示不显示
+     * 在【指令列表】中应该如何显示这个命令。null 表示不显示
      */
     fun showTips(groupCode: Long, senderId: Long): String?
+
+    /**
+     * 在【指令说明】中应该如何显示这个命令。null 表示不显示
+     */
+    fun showInstruction(groupCode: Long, senderId: Long): String?
 
     /**
      * 是否有权限执行这个指令
@@ -78,7 +83,7 @@ interface CommandHandler {
             val msg =
                 if (isAt) (message.getOrNull(2) as? PlainText)?.content?.trim()
                 else (message.getOrNull(1) as? PlainText)?.content?.trim()
-            // 如存在文本消息，则获得之；如不存在文本消息且艾特了机器人，则视为输入了“ShowTips”指令；否则返回
+            // 如存在文本消息，则获得之；如不存在文本消息且艾特了机器人，则视为输入了`指令说明`指令；否则返回
             val msgContent = if (!msg.isNullOrEmpty()) msg else if (isAt) ShowTips.name else return
             // 文本消息中存在换行时，视为指令无效
             if (msgContent.contains("\n") || msgContent.contains("\r")) return

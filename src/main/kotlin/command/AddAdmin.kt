@@ -12,6 +12,8 @@ object AddAdmin : CommandHandler {
 
     override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
 
+    override fun showInstruction(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
+
     override fun checkAuth(groupCode: Long, senderId: Long) = TRVGConfig.isSuperAdmin(senderId)
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {

@@ -11,6 +11,8 @@ object ListAllAdmin : CommandHandler {
 
     override fun showTips(groupCode: Long, senderId: Long) = name
 
+    override fun showInstruction(groupCode: Long, senderId: Long) = name
+
     override fun checkAuth(groupCode: Long, senderId: Long) = true
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {
