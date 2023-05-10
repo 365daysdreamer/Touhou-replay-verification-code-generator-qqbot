@@ -10,12 +10,12 @@ import org.stg.verification.bot.storage.TRVGConfig
  */
 interface CommandHandler {
     /**
-     * 群友输入聊天指令时，第一个空格前的内容
+     * 群友输入聊天指令时，第一个空格前的内容，即指令
      */
     val name: String
 
     /**
-     * 在【帮助列表】中应该如何显示这个命令。null 表示不显示
+     * 在【指令说明】中应该如何显示这个命令。null 表示不显示
      */
     fun showTips(groupCode: Long, senderId: Long): String?
 
@@ -53,29 +53,40 @@ interface CommandHandler {
     suspend fun execute(event: GroupMessageEvent, content: String): Message
 
     companion object {
+        /**
+         * 指令处理器列表
+         */
         val handlers = arrayOf(
             ShowTips,
             AddAdmin, RemoveAdmin, ListAllAdmin,
             RandOperation, DeleteRecord, GetRecord, GetAllRecords
         )
 
+        /**
+         * 指令处理
+         * @param e 群消息事件
+         */
         suspend fun handle(e: GroupMessageEvent) {
-            if (e.group.id !in TRVGConfig.qq.qqGroup)
-                return
+            // 排除非工作QQ群
+            if (e.group.id !in TRVGConfig.qq.qqGroup) return
+            // 从群消息事件中获取消息链并忽略空消息
             val message = e.message
-            if (message.size <= 1)
-                return
+            if (message.size <= 1) return
+            // 判断是否在@机器人
             val isAt = message.getOrNull(1)?.let { it is At && it.target == e.bot.id } ?: false
-            // if (!isAt && message.size > 2 || message.size > 3)
-            //     return
+            // 获取文本消息，如果消息链中第一个元素是@机器人，则获取第二个元素
             val msg =
                 if (isAt) (message.getOrNull(2) as? PlainText)?.content?.trim()
                 else (message.getOrNull(1) as? PlainText)?.content?.trim()
+            // 如存在文本消息，则获得之；如不存在文本消息且艾特了机器人，则视为输入了“ShowTips”指令；否则返回
             val msgContent = if (!msg.isNullOrEmpty()) msg else if (isAt) ShowTips.name else return
+            // 文本消息中存在换行时，视为指令无效
             if (msgContent.contains("\n") || msgContent.contains("\r")) return
+            // 将文本消息分为指令和参数两部分
             val msgSlices = msgContent.split(" ", limit = 2)
             val cmd = msgSlices[0]
             val content = msgSlices.getOrElse(1) { "" }
+            // 遍历指令处理器并执行之
             handlers.forEach {
                 if (it.name == cmd && it.checkAuth(e.group.id, e.sender.id)) {
                     val groupMsg = it.execute(e, content)

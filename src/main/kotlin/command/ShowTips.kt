@@ -7,7 +7,7 @@ import org.stg.verification.bot.CommandHandler
 import org.stg.verification.bot.CommandHandler.Companion.handlers
 
 object ShowTips : CommandHandler {
-    override val name = "指令列表"
+    override val name = "指令说明"
 
     override fun showTips(groupCode: Long, senderId: Long) = null
 
