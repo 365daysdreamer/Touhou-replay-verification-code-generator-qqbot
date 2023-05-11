@@ -11,8 +11,7 @@ object RandOperationHistory : AutoSavePluginData("RandOperationHistory") {
         synchronized(RandOperationHistory) {
             history =
                 if (!history.containsKey(qq)) {
-                    history[qq] = mutableListOf()
-                    history[qq]!!.add(record)
+                    history[qq] = mutableListOf(record)
                     history
                 } else {
                     history[qq]!!.add(record)
