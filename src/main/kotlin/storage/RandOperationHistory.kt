@@ -5,13 +5,19 @@ import net.mamoe.mirai.console.data.*
 object RandOperationHistory : AutoSavePluginData("RandOperationHistory") {
     @ValueName("history")
     @ValueDescription("随机操作历史记录")
-    var history: Map<Long, MutableList<String>> by value(hashMapOf())
+    var history: MutableMap<Long, MutableList<String>> by value(hashMapOf())
 
     fun addRecord(qq: Long, record: String) {
         synchronized(RandOperationHistory) {
-            val recordList = history[qq] ?: mutableListOf()
-            recordList.add(record)
-            history += qq to recordList
+            history =
+                if (!history.containsKey(qq)) {
+                    history[qq] = mutableListOf()
+                    history[qq]!!.add(record)
+                    history
+                } else {
+                    history[qq]!!.add(record)
+                    history
+                }
         }
     }
 
