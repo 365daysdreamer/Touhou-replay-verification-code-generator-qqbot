@@ -9,10 +9,10 @@ import org.stg.verification.bot.storage.RandOperationHistory
 object DeleteRecord : CommandHandler {
     override val name = "删除记录"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name <备注或序号>"
+    override fun showTips(groupCode: Long, senderId: Long) = "$name <标签>"
 
     override fun showInstruction(groupCode: Long, senderId: Long) = """
-        $name <备注或序号>
+        $name <标签>
         删除自己申请的随机操作记录，不能删除别人的
         支持同时删除多个记录，用空格隔开
         参数不能为空
