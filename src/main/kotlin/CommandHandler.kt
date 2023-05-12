@@ -42,7 +42,7 @@ interface CommandHandler {
      * 是否需要计算冷却
      */
     fun needCooldown(senderId: Long): Boolean {
-        return !(this.name in handlersWithCd || PermData.isAdmin(senderId))
+        return this.name in handlersWithCd && !PermData.isAdmin(senderId)
     }
 
     /**
@@ -94,7 +94,9 @@ interface CommandHandler {
         )
         val handlersWithCd = buildList {
             arrayOf(
-                RandOperation, GetRecord, GetAllRecord
+                ListAllAdmin,
+                RandOperation,
+                GetRecord, GetAllRecord
             ).forEach { add(it.name) }
         }
 

@@ -13,7 +13,7 @@ object DeleteRecord : CommandHandler {
 
     override val cooldown: MutableMap<Long, Long> = mutableMapOf()
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
+    override fun showTips(groupCode: Long, senderId: Long) = "$name <标签>"
 
     override fun showInstruction(groupCode: Long, senderId: Long) = """
         $name <标签>
