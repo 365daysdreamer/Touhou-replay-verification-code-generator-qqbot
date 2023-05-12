@@ -64,7 +64,8 @@ interface CommandHandler {
         val handlers = arrayOf(
             ShowTips,
             AddAdmin, RemoveAdmin, ListAllAdmin,
-            RandOperation, DeleteRecord, GetRecord, GetAllRecords
+            RandOperation, DeleteRecord, ClearRecord,
+            GetRecord, GetAllRecord
         )
 
         /**
