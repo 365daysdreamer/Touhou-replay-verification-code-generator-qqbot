@@ -89,11 +89,12 @@ interface CommandHandler {
         val handlers = arrayOf(
             ShowTips,
             AddAdmin, RemoveAdmin, ListAllAdmin,
-            RandOperation, DeleteRecord, GetRecord, GetAllRecords
+            RandOperation, DeleteRecord, ClearRecord,
+            GetRecord, GetAllRecord
         )
         val handlersWithCd = buildList {
             arrayOf(
-                RandOperation, GetRecord, GetAllRecords
+                RandOperation, GetRecord, GetAllRecord
             ).forEach { add(it.name) }
         }
 

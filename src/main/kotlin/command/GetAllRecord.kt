@@ -7,7 +7,7 @@ import org.stg.verification.bot.CommandHandler
 import org.stg.verification.bot.storage.PermData
 import org.stg.verification.bot.storage.RandOperationHistory
 
-object GetAllRecords : CommandHandler {
+object GetAllRecord : CommandHandler {
     override val name = "查询全部记录"
 
     override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
@@ -25,7 +25,7 @@ object GetAllRecords : CommandHandler {
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {
         val target = extractQQ(event.message)
         return if (target.isEmpty()) {
-            val result = RandOperationHistory.getAllRecords(event.sender.id)
+            val result = RandOperationHistory.getAllRecord(event.sender.id)
             if (result.isNullOrEmpty()) {
                 PlainText("未查询到记录")
             } else {
@@ -34,7 +34,7 @@ object GetAllRecords : CommandHandler {
         } else {
             val result = target.mapNotNull {
                 qqNumber ->
-                RandOperationHistory.getAllRecords(qqNumber)?.let { listOf("$qqNumber:", *it.toTypedArray()) }
+                RandOperationHistory.getAllRecord(qqNumber)?.let { listOf("$qqNumber:", *it.toTypedArray()) }
             }.flatten()
             if (result.isEmpty()) {
                 PlainText("未查询到记录")

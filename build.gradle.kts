@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.stg.verification.bot"
-version = "1.1.1"
+version = "1.2.0"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")
