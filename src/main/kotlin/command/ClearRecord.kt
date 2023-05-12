@@ -8,17 +8,19 @@ import org.stg.verification.bot.storage.PermData
 import org.stg.verification.bot.storage.RandOperationHistory
 
 object ClearRecord : CommandHandler {
-    override val name = "清除记录"
+    override val name = "清空记录"
+
+    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.ADMIN
+
+    override val cooldown: MutableMap<Long, Long> = mutableMapOf()
 
     override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
 
     override fun showInstruction(groupCode: Long, senderId: Long) = """
         $name <@某人|QQ号>
-        清除该用户申请的全部随机操作记录，参数为空则是清除自己的，只有管理员才能清除别人的操作记录
+        清空该用户申请的全部随机操作记录，参数为空则是清除自己的，只有管理员才能清除别人的操作记录
         支持同时清除多位用户的记录，用空格隔开
     """.trimIndent()
-
-    override fun checkAuth(groupCode: Long, senderId: Long) = true
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {
         val target = extractQQ(event.message)

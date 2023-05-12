@@ -9,6 +9,10 @@ import org.stg.verification.bot.storage.RandOperationHistory
 object DeleteRecord : CommandHandler {
     override val name = "删除记录"
 
+    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.ADMIN
+
+    override val cooldown: MutableMap<Long, Long> = mutableMapOf()
+
     override fun showTips(groupCode: Long, senderId: Long) = "$name <标签>"
 
     override fun showInstruction(groupCode: Long, senderId: Long) = """
@@ -17,8 +21,6 @@ object DeleteRecord : CommandHandler {
         支持同时删除多个记录，用空格隔开
         参数不能为空
     """.trimIndent()
-
-    override fun checkAuth(groupCode: Long, senderId: Long) = true
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {
         if (content.isEmpty()) return PlainText("参数不能为空！")

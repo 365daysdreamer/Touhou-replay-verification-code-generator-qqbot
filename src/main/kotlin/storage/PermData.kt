@@ -1,6 +1,7 @@
 package org.stg.verification.bot.storage
 
 import net.mamoe.mirai.console.data.*
+import org.stg.verification.bot.CommandHandler
 
 object PermData : AutoSavePluginData("PermData") {
     @ValueDescription("管理员")
@@ -8,6 +9,12 @@ object PermData : AutoSavePluginData("PermData") {
 
     fun isAdmin(qq: Long) =
         TRVGConfig.isSuperAdmin(qq) || qq in admin
+
+    fun getPermLevel(qq: Long) = when {
+        TRVGConfig.isSuperAdmin(qq) -> CommandHandler.PermLevel.SUPER_ADMIN
+        qq in admin -> CommandHandler.PermLevel.ADMIN
+        else -> CommandHandler.PermLevel.NORMAL
+    }
 
     fun addAdmin(qq: Long): Boolean {
         synchronized(PermData) {

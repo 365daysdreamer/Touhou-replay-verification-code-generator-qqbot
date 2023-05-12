@@ -13,7 +13,11 @@ import kotlin.random.Random
 object RandOperation : CommandHandler {
     override val name = "随机操作"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name <标签>"
+    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.NORMAL
+
+    override val cooldown: MutableMap<Long, Long> = mutableMapOf()
+
+    override fun showTips(groupCode: Long, senderId: Long) = name
 
     override fun showInstruction(groupCode: Long, senderId: Long) = """
         $name <标签>
@@ -22,8 +26,6 @@ object RandOperation : CommandHandler {
         标签可以用来描述验证码的用途，也可以不填
         标签不能包含空格
     """.trimIndent()
-
-    override fun checkAuth(groupCode: Long, senderId: Long) = true
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {
         val record = StringBuilder()

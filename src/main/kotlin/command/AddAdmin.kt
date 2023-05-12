@@ -8,13 +8,15 @@ import org.stg.verification.bot.storage.PermData
 import org.stg.verification.bot.storage.TRVGConfig
 
 object AddAdmin : CommandHandler {
-    override val name = "增加管理员"
+    override val name: String = "增加管理员"
+
+    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.SUPER_ADMIN
+
+    override val cooldown: MutableMap<Long, Long> = mutableMapOf()
 
     override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
 
     override fun showInstruction(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
-
-    override fun checkAuth(groupCode: Long, senderId: Long) = TRVGConfig.isSuperAdmin(senderId)
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {
         val target = extractQQ(event.message)

@@ -3,7 +3,9 @@ package org.stg.verification.bot
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.*
 import org.stg.verification.bot.command.*
+import org.stg.verification.bot.storage.PermData
 import org.stg.verification.bot.storage.TRVGConfig
+import org.stg.verification.bot.storage.replace
 
 /**
  * 这是聊天指令处理器的接口，当你想要新增自己的聊天指令处理器时，实现这个接口即可。
@@ -13,6 +15,18 @@ interface CommandHandler {
      * 群友输入聊天指令时，第一个空格前的内容，即指令
      */
     val name: String
+
+    /**
+     * 指令权限等级
+     */
+    val permLevel: PermLevel
+    val cooldown: MutableMap<Long, Long>
+
+    enum class PermLevel(val level: Int) {
+        NORMAL(0),
+        ADMIN(1),
+        SUPER_ADMIN(2),
+    }
 
     /**
      * 在【指令列表】中应该如何显示这个命令。null 表示不显示
@@ -25,14 +39,25 @@ interface CommandHandler {
     fun showInstruction(groupCode: Long, senderId: Long): String?
 
     /**
-     * 是否有权限执行这个指令
+     * 是否需要计算冷却
      */
-    fun checkAuth(groupCode: Long, senderId: Long): Boolean
+    fun needCooldown(senderId: Long): Boolean {
+        return this.name in handlersWithCd && !PermData.isAdmin(senderId)
+    }
+
+    /**
+     * 是否有权限执行这个指令
+     * @param senderId 发送者QQ号
+     * @return true表示有权限，false表示没有权限
+     */
+    fun checkAuth(senderId: Long): Boolean {
+        return PermData.getPermLevel(senderId) >= permLevel
+    }
 
     /**
      * 提取指令中的QQ号
      * @param msg 触发指令的消息链
-     * @return 如果指令中包含QQ号@target，就返回这个QQ号，否则返回null
+     * @return 如果指令中包含QQ号@target，就返回那些QQ号，否则返回null
      */
     fun extractQQ(msg: MessageChain): List<Long> {
         val target = mutableListOf<Long>()
@@ -67,19 +92,26 @@ interface CommandHandler {
             RandOperation, DeleteRecord, ClearRecord,
             GetRecord, GetAllRecord
         )
+        val handlersWithCd = buildList {
+            arrayOf(
+                ListAllAdmin,
+                RandOperation,
+                GetRecord, GetAllRecord
+            ).forEach { add(it.name) }
+        }
 
         /**
          * 指令处理
-         * @param e 群消息事件
+         * @param event 群消息事件
          */
-        suspend fun handle(e: GroupMessageEvent) {
+        suspend fun handle(event: GroupMessageEvent) {
             // 排除非工作QQ群
-            if (e.group.id !in TRVGConfig.qq.qqGroup) return
+            if (event.group.id !in TRVGConfig.qq.qqGroup) return
             // 从群消息事件中获取消息链并忽略空消息
-            val message = e.message
+            val message = event.message
             if (message.size <= 1) return
             // 判断是否在@机器人
-            val isAt = message.getOrNull(1)?.let { it is At && it.target == e.bot.id } ?: false
+            val isAt = message.getOrNull(1)?.let { it is At && it.target == event.bot.id } ?: false
             // 获取文本消息，如果消息链中第一个元素是@机器人，则获取第二个元素
             val msg =
                 if (isAt) (message.getOrNull(2) as? PlainText)?.content?.trim()
@@ -94,9 +126,23 @@ interface CommandHandler {
             val content = msgSlices.getOrElse(1) { "" }
             // 遍历指令处理器并执行之
             handlers.forEach {
-                if (it.name == cmd && it.checkAuth(e.group.id, e.sender.id)) {
-                    val groupMsg = it.execute(e, content)
-                    e.group.sendMessage(groupMsg)
+                if (it.name == cmd && it.checkAuth(event.sender.id)) {
+                    // 冷却
+                    if (it.needCooldown(event.sender.id)) {
+                        val cd = it.cooldown.getOrDefault(event.sender.id, 0L)
+                        if (cd >= System.currentTimeMillis()) {
+                            event.group.sendMessage(TRVGConfig.replyCooldown.replace(mapOf(
+                                "quote" to QuoteReply(event.source),
+                                "cmd" to PlainText(cmd),
+                                "cd" to PlainText(((cd - System.currentTimeMillis()) / 1000L).toString())
+                            )))
+                            return
+                        }
+                        it.cooldown[event.sender.id] = System.currentTimeMillis() + TRVGConfig.cooldown * 1000L
+                    }
+                    // 执行指令
+                    val groupMsg = it.execute(event, content)
+                    event.group.sendMessage(groupMsg)
                 }
             }
         }
