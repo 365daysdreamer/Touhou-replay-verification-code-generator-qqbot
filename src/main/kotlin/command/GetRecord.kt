@@ -11,14 +11,16 @@ object GetRecord : CommandHandler {
 
     override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
 
+    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.NORMAL
+
+    override val cooldown: MutableMap<Long, Long> = mutableMapOf()
+
     override fun showInstruction(groupCode: Long, senderId: Long) = """
         $name <@某人|QQ号>
         查询该用户申请的随机操作记录，参数为空则是查询自己的
         为了防止刷屏，可以设置查询时显示验证码个数的限制，默认显示最后10条验证码
         支持同时查询多位用户的记录，用空格隔开
     """.trimIndent()
-
-    override fun checkAuth(groupCode: Long, senderId: Long) = true
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {
         val target = extractQQ(event.message)

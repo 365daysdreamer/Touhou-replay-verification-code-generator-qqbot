@@ -9,6 +9,8 @@ import org.stg.verification.bot.CommandHandler.Companion.handlers
 object ShowTips : CommandHandler {
     override val name = "指令说明"
 
+    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.NORMAL
+
     override fun showTips(groupCode: Long, senderId: Long) = "$name <指令名>"
 
     override fun showInstruction(groupCode: Long, senderId: Long) = "$name <指令名>"
