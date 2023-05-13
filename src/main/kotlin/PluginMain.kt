@@ -17,7 +17,7 @@ internal object PluginMain : KotlinPlugin(
     JvmPluginDescription(
         id = "org.stg.verification.bot",
         name = "Touhou Replay Verification Code Generator Bot",
-        version = "1.2.2"
+        version = "1.2.3"
     )
 ) {
     /**

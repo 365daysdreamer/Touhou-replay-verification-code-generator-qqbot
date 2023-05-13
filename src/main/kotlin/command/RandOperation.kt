@@ -25,6 +25,7 @@ object RandOperation : CommandHandler {
         在配置文件里可以设置验证码的长度，当前为${TRVGConfig.randOperation.number}位验证码
         标签可以用来描述验证码的用途，也可以不填
         标签不能包含空格，且长度限制为${TRVGConfig.randOperation.tagLimit}字符
+        生成相同标签的随机操作时会覆盖原有的记录
     """.trimIndent()
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {

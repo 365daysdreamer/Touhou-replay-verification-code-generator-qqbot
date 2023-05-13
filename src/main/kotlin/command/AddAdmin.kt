@@ -8,7 +8,7 @@ import org.stg.verification.bot.storage.PermData
 import org.stg.verification.bot.storage.TRVGConfig
 
 object AddAdmin : CommandHandler {
-    override val name: String = "增加管理员"
+    override val name = "增加管理员"
 
     override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.SUPER_ADMIN
 

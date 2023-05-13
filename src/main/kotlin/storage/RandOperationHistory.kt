@@ -51,6 +51,32 @@ object RandOperationHistory : AutoSavePluginData("RandOperationHistory") {
         }
     }
 
+    fun modifyTag(qq: Long, previousTag: String, newTag: String?): String {
+        synchronized(RandOperationHistory) {
+            if (!history.containsKey(qq))
+                return "无法修改，该账号无任何记录"
+            if (!history[qq]!!.containsKey(previousTag))
+                return "无法修改，不存在该记录或标签不正确"
+            var result = "程序错误，请联系开发者"
+            if (newTag.isNullOrEmpty()) {
+                for (i in 1..Int.MAX_VALUE) {
+                    if (!history[qq]!!.containsKey((history[qq]!!.size + i).toString())) {
+                        history[qq]!![(history[qq]!!.size + i).toString()] = history[qq]!![previousTag]!!
+                        history[qq]!!.remove(previousTag)
+                        result = "标签 $previousTag 已修改为 ${(history[qq]!!.size + i)}"
+                        break
+                    }
+                }
+            } else {
+                history[qq]!![newTag] = history[qq]!![previousTag]!!
+                history[qq]!!.remove(previousTag)
+                result = "标签 $previousTag 已修改为 $newTag"
+            }
+            history
+            return result
+        }
+    }
+
     fun getRecord(qq: Long): List<String>? {
         synchronized(RandOperationHistory) {
             val result = history[qq]?.flatMap {
