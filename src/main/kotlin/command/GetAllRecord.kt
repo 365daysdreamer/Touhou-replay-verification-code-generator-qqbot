@@ -4,17 +4,16 @@ import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.PlainText
 import org.stg.verification.bot.CommandHandler
-import org.stg.verification.bot.storage.PermData
 import org.stg.verification.bot.storage.RandOperationHistory
 
 object GetAllRecord : CommandHandler {
     override val name = "查询全部记录"
 
-    override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
-
     override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.ADMIN
 
     override val cooldown: MutableMap<Long, Long> = mutableMapOf()
+
+    override fun showTips(groupCode: Long, senderId: Long) = "$name <@某人|QQ号>"
 
     override fun showInstruction(groupCode: Long, senderId: Long) = """
         $name <@某人|QQ号>

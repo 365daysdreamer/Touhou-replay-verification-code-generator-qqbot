@@ -54,17 +54,17 @@ object RandOperationHistory : AutoSavePluginData("RandOperationHistory") {
     fun getRecord(qq: Long): List<String>? {
         synchronized(RandOperationHistory) {
             val result = history[qq]?.flatMap {
-                (key, value) -> listOf("$key: $value")
+                (key, value) -> listOf("$key：$value")
             } ?: return null
-            if (result.size <= TRVGConfig.randOperation.limit) return result
-            return result.subList(result.size - TRVGConfig.randOperation.limit, result.size)
+            if (result.size <= TRVGConfig.randOperation.queryLimit) return result
+            return result.subList(result.size - TRVGConfig.randOperation.queryLimit, result.size)
         }
     }
 
     fun getAllRecord(qq: Long): List<String>? {
         synchronized(RandOperationHistory) {
             return history[qq]?.flatMap {
-                (key, value) -> listOf("$key: $value")
+                (key, value) -> listOf("$key：$value")
             }
         }
     }

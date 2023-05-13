@@ -10,7 +10,7 @@ import org.stg.verification.bot.storage.RandOperationHistory
 object ClearRecord : CommandHandler {
     override val name = "清空记录"
 
-    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.ADMIN
+    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.NORMAL
 
     override val cooldown: MutableMap<Long, Long> = mutableMapOf()
 

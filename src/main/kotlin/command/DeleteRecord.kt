@@ -9,7 +9,7 @@ import org.stg.verification.bot.storage.RandOperationHistory
 object DeleteRecord : CommandHandler {
     override val name = "删除记录"
 
-    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.ADMIN
+    override val permLevel: CommandHandler.PermLevel = CommandHandler.PermLevel.NORMAL
 
     override val cooldown: MutableMap<Long, Long> = mutableMapOf()
 

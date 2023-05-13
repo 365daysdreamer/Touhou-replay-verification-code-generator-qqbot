@@ -33,8 +33,13 @@ object TRVGConfig : AutoSavePluginConfig("TRVGConfig") {
         /** 一个验证码包含的随机操作的次数 */
         val number: Int,
 
+        @SerialName("query_limit")
         /** 查询时显示验证码个数的限制 */
-        val limit: Int,
+        val queryLimit: Int,
+
+        @SerialName("tag_limit")
+        /** 标签的长度限制 */
+        val tagLimit: Int,
     )
 
     @ValueName("random_operation")
@@ -42,13 +47,33 @@ object TRVGConfig : AutoSavePluginConfig("TRVGConfig") {
     val randOperation: RandOperationConfig by value(
         RandOperationConfig(
             number = 10,
-            limit = 10
+            queryLimit = 10,
+            tagLimit = 20
         )
     )
 
-    @ValueName("cooldown")
-    @ValueDescription("指令冷却时间")
-    val cooldown: Long by value(30L)
+    @Serializable
+    class CooldownConfig(
+        /** 指令冷却时间 */
+        val time: Long,
+
+        @SerialName("command_with_cd")
+        /** 需要冷却的指令 */
+        val commandWithCd: Array<String>,
+    )
+
+    @ValueDescription("指令冷却配置")
+    val cooldown: CooldownConfig by value(
+        CooldownConfig(
+            time = 30L,
+            commandWithCd = arrayOf(
+                "查看管理员",
+                "随机操作",
+                "查询记录",
+                "查询全部记录"
+            )
+        )
+    )
 
     @ValueName("cooldown_msg")
     @ValueDescription(
@@ -65,7 +90,7 @@ object TRVGConfig : AutoSavePluginConfig("TRVGConfig") {
  * @param replaceMap 变量名到变量值的映射
  * @return 替换后的消息链
  */
-suspend fun String.replace(replaceMap: Map<String, SingleMessage>): MessageChain {
+fun String.replace(replaceMap: Map<String, SingleMessage>): MessageChain {
     if (!this.contains("\$")) return PlainText(this).toMessageChain()
 
     val keys = replaceMap.keys.toMutableList()

@@ -20,13 +20,18 @@ interface CommandHandler {
      * 指令权限等级
      */
     val permLevel: PermLevel
-    val cooldown: MutableMap<Long, Long>
 
     enum class PermLevel(val level: Int) {
         NORMAL(0),
         ADMIN(1),
         SUPER_ADMIN(2),
     }
+
+    /**
+     * 冷却监控
+     * key为目标QQ号，值为该QQ号当前的冷却时间
+     */
+    val cooldown: MutableMap<Long, Long>
 
     /**
      * 在【指令列表】中应该如何显示这个命令。null 表示不显示
@@ -39,10 +44,18 @@ interface CommandHandler {
     fun showInstruction(groupCode: Long, senderId: Long): String?
 
     /**
+     * 执行指令
+     * @param event 触发指令的事件
+     * @param content 除开指令名（第一个空格前的部分）以外剩下的所有内容
+     * @return 要发送的群聊消息，为空就是不发送消息
+     */
+    suspend fun execute(event: GroupMessageEvent, content: String): Message
+
+    /**
      * 是否需要计算冷却
      */
     fun needCooldown(senderId: Long): Boolean {
-        return this.name in handlersWithCd && !PermData.isAdmin(senderId)
+        return this.name in TRVGConfig.cooldown.commandWithCd && !PermData.isAdmin(senderId)
     }
 
     /**
@@ -74,14 +87,6 @@ interface CommandHandler {
         return target.distinct()
     }
 
-    /**
-     * 执行指令
-     * @param event 触发指令的事件
-     * @param content 除开指令名（第一个空格前的部分）以外剩下的所有内容
-     * @return 要发送的群聊消息，为空就是不发送消息
-     */
-    suspend fun execute(event: GroupMessageEvent, content: String): Message
-
     companion object {
         /**
          * 指令处理器列表
@@ -92,13 +97,6 @@ interface CommandHandler {
             RandOperation, DeleteRecord, ClearRecord,
             GetRecord, GetAllRecord
         )
-        val handlersWithCd = buildList {
-            arrayOf(
-                ListAllAdmin,
-                RandOperation,
-                GetRecord, GetAllRecord
-            ).forEach { add(it.name) }
-        }
 
         /**
          * 指令处理
@@ -126,6 +124,7 @@ interface CommandHandler {
             val content = msgSlices.getOrElse(1) { "" }
             // 遍历指令处理器并执行之
             handlers.forEach {
+                // 匹配指令并进行权限检查
                 if (it.name == cmd && it.checkAuth(event.sender.id)) {
                     // 冷却
                     if (it.needCooldown(event.sender.id)) {
@@ -138,7 +137,7 @@ interface CommandHandler {
                             )))
                             return
                         }
-                        it.cooldown[event.sender.id] = System.currentTimeMillis() + TRVGConfig.cooldown * 1000L
+                        it.cooldown[event.sender.id] = System.currentTimeMillis() + TRVGConfig.cooldown.time * 1000L
                     }
                     // 执行指令
                     val groupMsg = it.execute(event, content)
