@@ -1,12 +1,10 @@
 package org.stg.verification.bot.command
 
 import net.mamoe.mirai.event.events.GroupMessageEvent
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.*
 import org.stg.verification.bot.CommandHandler
 import org.stg.verification.bot.storage.RandOperationHistory
 import org.stg.verification.bot.storage.TRVGConfig
-import java.text.DateFormat
 import java.util.*
 import kotlin.random.Random
 
@@ -32,11 +30,12 @@ object RandOperation : CommandHandler {
         val record = StringBuilder()
         for (i in 1..TRVGConfig.randOperation.number)
             record.append(randOperations[Random.nextInt(randOperations.size)])
+        val message = MessageChainBuilder()
         val text = record.toString()
-        val now = Calendar.getInstance()
-        val time = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Locale.CHINA)
-        time.timeZone = TimeZone.getTimeZone("GMT+8:00")
-        record.append("\n${time.format(now.time)}")
+        val now = Calendar.getInstance(TimeZone.getTimeZone("GMT+8:00"))
+        val time = "${now.get(Calendar.YEAR)}/${now.get(Calendar.MONTH)}/${now.get(Calendar.DATE)} - " +
+                "${now.get(Calendar.HOUR_OF_DAY)}:${now.get(Calendar.MINUTE)}:${now.get(Calendar.SECOND)}"
+        record.append("\n$time")
         RandOperationHistory.addRecord(
             event.sender.id,
             if (content.split(" ", limit=2)[0].length > TRVGConfig.randOperation.tagLimit)
@@ -45,7 +44,8 @@ object RandOperation : CommandHandler {
                 content.split(" ", limit=2)[0],
             record.toString()
         )
-        return PlainText(text)
+        message.addAll(arrayOf(QuoteReply(event.source), PlainText(text)))
+        return message.build()
     }
 
     private val randOperations = arrayOf("↑", "↓", "←", "→")

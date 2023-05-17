@@ -1,8 +1,7 @@
 package org.stg.verification.bot.command
 
 import net.mamoe.mirai.event.events.GroupMessageEvent
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.*
 import org.stg.verification.bot.CommandHandler
 import org.stg.verification.bot.storage.RandOperationHistory
 
@@ -23,7 +22,8 @@ object GetAllRecord : CommandHandler {
 
     override suspend fun execute(event: GroupMessageEvent, content: String): Message {
         val target = extractQQ(event.message)
-        return if (target.isEmpty()) {
+        val message = MessageChainBuilder()
+        val text = if (target.isEmpty()) {
             val result = RandOperationHistory.getAllRecord(event.sender.id)
             if (result.isNullOrEmpty()) {
                 PlainText("未查询到记录")
@@ -41,5 +41,7 @@ object GetAllRecord : CommandHandler {
                 PlainText(result.joinToString(separator = "\n", prefix = "随机操作记录：\n"))
             }
         }
+        message.addAll(arrayOf(QuoteReply(event.source), text))
+        return message.build()
     }
 }
