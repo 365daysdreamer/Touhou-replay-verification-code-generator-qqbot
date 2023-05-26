@@ -91,11 +91,15 @@ interface CommandHandler {
         /**
          * 指令处理器列表
          */
-        val handlers = arrayOf(
+        val allCmd = arrayOf(
             ShowTips,
             AddAdmin, RemoveAdmin, ListAllAdmin,
             RandOperation, DeleteRecord, ClearRecord, ModifyTag,
-            GetRecord, GetAllRecord
+            GetRecord, GetAllRecord,
+            EnableGroup, DisableGroup
+        )
+        private val groupCmd = arrayOf(
+            EnableGroup, DisableGroup
         )
 
         /**
@@ -104,7 +108,11 @@ interface CommandHandler {
          */
         suspend fun handle(event: GroupMessageEvent) {
             // 排除非工作QQ群
-            if (event.group.id !in TRVGConfig.qq.qqGroup) return
+            val handlers =
+                if (event.group.id !in TRVGConfig.qq.qqGroup)
+                    if (TRVGConfig.isSuperAdmin(event.sender.id)) groupCmd
+                    else return
+                else allCmd
             // 从群消息事件中获取消息链并忽略空消息
             val message = event.message
             if (message.size <= 1) return
@@ -141,7 +149,7 @@ interface CommandHandler {
                     }
                     // 执行指令
                     val groupMsg = it.execute(event, content)
-                    event.group.sendMessage(groupMsg)
+                    event.group.sendMessage(QuoteReply(event.source) + groupMsg)
                 }
             }
         }

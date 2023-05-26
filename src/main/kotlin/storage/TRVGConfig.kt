@@ -14,19 +14,38 @@ object TRVGConfig : AutoSavePluginConfig("TRVGConfig") {
 
         @SerialName("qq_group")
         /** 主要功能的QQ群 */
-        val qqGroup: LongArray,
+        var qqGroup: MutableList<Long>,
     )
 
     @ValueDescription("QQ相关配置")
     val qq: QQConfig by value(
         QQConfig(
-            superAdminQQ = 12345678,
-            qqGroup = longArrayOf(12345678)
+            superAdminQQ = 12345678L,
+            qqGroup = mutableListOf(12345678L)
         )
     )
 
-    fun isSuperAdmin(qq: Long) =
+    fun isSuperAdmin(qq: Long): Boolean =
         qq == this.qq.superAdminQQ
+
+    fun enableGroup(groupId: Long): Boolean {
+        synchronized(TRVGConfig) {
+            if (groupId in qq.qqGroup) return false
+            qq.qqGroup += groupId
+            return true
+        }
+    }
+
+    fun disableGroup(groupId: Long): Boolean {
+        synchronized(TRVGConfig) {
+            if (groupId !in qq.qqGroup) return false
+            qq.qqGroup -= groupId
+            return true
+        }
+    }
+
+    fun isGroupEnabled(groupId: Long): Boolean =
+        groupId in qq.qqGroup
 
     @Serializable
     class RandOperationConfig(
